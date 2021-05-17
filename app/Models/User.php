@@ -42,4 +42,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    # quan hệ 1 - n user -songs
+    public function songs()
+    {
+        return $this->hasMany(Song::class,'user_id','id');
+    }
 }

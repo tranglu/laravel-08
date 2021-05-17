@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
@@ -19,11 +20,16 @@ class UserController extends Controller
         ]);
     }
 
-    public function getCurrentUser()
+    public function getCurrentUser(): JsonResponse
     {
         $user=auth()->user();
-        \Log::info("item= " . print_r($user, true));
-        return $user;
+//        $x=new UserResource(User::find($user->id));
+//        \Log::info("user data= " . print_r($x, true));
+//        return response()->json([
+//            'data' => $user,
+//        ]);
+
+        return response()->json(['data' => new UserResource($user), 'message' => 'Retrieved successfully'], 200);
     }
     public function logout(): JsonResponse
     {

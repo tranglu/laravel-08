@@ -12,225 +12,13 @@
     <script src="{{ asset('assets/jquery/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ asset('assets/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        $(function() {
-            getInfo();
-            // $(".class-inside").hide();
-            function getCharacterLength(str) {
-                return [...str].length;
-            }
-
-            function getInfo() {
-                let tokenFlag = localStorage.getItem('bearer_token');
-                if (tokenFlag != null && getCharacterLength(tokenFlag) > 0) {
-                    $(".class-outside").hide();
-                    $(".list-user").hide();
-                    $.ajax({
-                        url: '{{ route('api-get-current-user') }}',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Authorization': 'Bearer ' + tokenFlag
-                        },
-                        beforeSend: function () {
-                        },
-                        type: 'get',
-                        dataType: "json",
-                        contentType: "application/json",
-                        cache: false,
-                        processData: false,
-                        success: function (data) {
-                            console.log('data: ');
-                            console.log(data);
-                            if (data) {
-                                $("#info_name").html(data.name);
-                                $("#info_email").html(data.email);
-                                $("#info_provider").html(data.provider);
-                                $(".class-inside").show();
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.log('Lỗi: ' + status + " - " + error);
-                        },
-                        complete: function (xhr, textStatus) {
-                        }
-                    });
-                } else {
-                    $(".class-outside").show();
-                    $(".class-inside").hide();
-                }
-            }
-
-            $("#btn_login").on("click", function (e) {
-                e.preventDefault();
-                let formData = new FormData();
-                formData.append('email', $("#email_login").val());
-                formData.append('password', $("#password_login").val());
-                let object = {};
-                formData.forEach(function (value, key) {
-                    object[key] = value;
-                });
-                let json = JSON.stringify(object);
-                $.ajax({
-                    url: '{{ route('api-fortify-login') }}',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    data: json,
-                    beforeSend: function () {
-                    },
-                    type: 'POST',
-                    dataType: "json",
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    success: function (data) {
-                        console.log('data: ');
-                        console.log(data);
-                        if (data.status_code === 200) {
-                            localStorage.setItem('bearer_token', data.access_token);
-                            console.log('bearer_token = ' + data.access_token);
-                            $(".class-outside").hide();
-                            $(".class-inside").show();
-                            getInfo();
-                        } else {
-                            alert('-->> Đăng nhập thất bại !!!');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.log('Lỗi: ' + status + " - " + error);
-                        alert('-->> Đăng nhập thất bại !!!');
-                    },
-                    complete: function (xhr, textStatus) {
-                    }
-                });
-            });
-            $("#btn_logout").on("click", function (e) {
-                e.preventDefault();
-                let tokenFlag = localStorage.getItem('bearer_token');
-                $.ajax({
-                    url: '{{ route('api-fortify-logout') }}',
-                    headers: {
-                        'Authorization': 'Bearer ' + tokenFlag
-                    },
-                    beforeSend: function () {
-                    },
-                    type: 'POST',
-                    dataType: "json",
-                    contentType: 'application/json',
-                    cache: false,
-                    processData: false,
-                    success: function(data) {
-                        console.log('data: ');
-                        console.log(data);
-                        if (data.message === 'Tokens Revoked') {
-                            localStorage.setItem('bearer_token', '');
-                            $(".class-outside").show();
-                            $(".class-inside").hide();
-                        }
-                    },
-                    error: function(xhr,status,error){
-                        console.log('Lỗi: ' + status + " - " + error);
-                    },
-                    complete: function(xhr, textStatus) {
-                    }
-                });
-            });
-            $("#btn_show_info_user").on("click", function (e) {
-                e.preventDefault();
-                let tokenFlag = localStorage.getItem('bearer_token');
-                $.ajax({
-                    url: '{{ route('api-get-current-user') }}',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Authorization': 'Bearer ' + tokenFlag
-                    },
-                    beforeSend: function () {
-                    },
-                    type: 'GET',
-                    dataType: "json",
-                    contentType: 'application/json',
-                    cache: false,
-                    processData: false,
-                    success: function (data) {
-                        console.log('data: ');
-                        console.log(data);
-                        if (data) {
-                            $("#info_name").html(data.name);
-                            $("#info_email").html(data.email);
-                            $(".list-user").hide();
-                            $(".info-user").show();
-                        }
-                    },
-                    error: function(xhr,status,error){
-                        console.log('Lỗi: ' + status + " - " + error);
-                    },
-                    complete: function(xhr, textStatus) {
-                    }
-                });
-            });
-            $("#btn_show_list_user").on("click", function (e) {
-                e.preventDefault();
-                let tokenFlag = localStorage.getItem('bearer_token');
-                if (tokenFlag != null && getCharacterLength(tokenFlag) > 0) {
-                    $(".class-outside").hide();
-                    $(".info-user").hide();
-                    $.ajax({
-                        url: '{{ route('api-get-all-user') }}',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Authorization': 'Bearer ' + tokenFlag
-                        },
-                        beforeSend: function () {
-                        },
-                        type: 'POST',
-                        dataType: "json",
-                        contentType: 'application/json',
-                        cache: false,
-                        processData: false,
-                        success: function (data) {
-                            console.log('data: ');
-                            console.log(data);
-                            if (data) {
-                                $('table').empty();
-                                $('table').append("<tr>" +
-                                    "<th> ID</th>" +
-                                    "<th>NAME </th>" +
-                                    "<th>EMAIL</th>" +
-                                    "</tr>");
-
-                                    $.each(data.data, function (id, item) {
-
-                                        console.log(item.id);
-                                        console.log(item.name);
-                                        console.log(item.email);
-                                        $('table').append("<tr>" +
-                                            "<td>"+item.id+"</td>" +
-                                            "<td>"+item.name+"</td>" +
-                                            "<td>"+item.email+"</td>" +
-                                            "</tr>");
-                                    });
-
-
-
-                                // $("#info_name").html(data.name);
-                                // $("#info_email").html(data.email);
-                                $(".info-user").hide();
-                                $(".list-user").show();
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.log('Lỗi: ' + status + " - " + error);
-                        },
-                        complete: function (xhr, textStatus) {
-                        }
-                    });
-                }else{
-                    $(".class-outside").show();
-                    $(".class-inside").hide();
-                }
-            });
-        });
+        let loginURL = '<?php echo e(route('api-login')); ?>';
+        let logoutURL = '<?php echo e(route('api-auth-logout')); ?>';
+        let currentUserURL = '<?php echo e(route('api-get-current-user')); ?>';
+        let allUserURL = '<?php echo e(route('api-get-all-user')); ?>';
+        let allSongURL = '<?php echo e(route('songs.index')); ?>';
     </script>
+    <script src="{{ asset('js/script.js') }}"></script>
     <style>
         table, th, td {
             border: 1px solid black;
@@ -239,7 +27,7 @@
 </head>
 <body>
 <div class="container">
-
+        {{--chưa login--}}
         <div class="class-outside">
             <div  class="col-5 offset-3 text-center my-5 ">
                 <form class="class-outside" id="form_login" action="{{route('login')}}">
@@ -260,12 +48,15 @@
                 </form>
             </div>
         </div>
+        {{--end chưa login--}}
+         {{--đã login--}}
         <div class="class-inside">
             <h3>Xin chào</h3>
             <div class="row">
             <div class="col-3">
                 <button class="btn btn-outline-secondary form-control" id="btn_show_info_user">THÔNG TIN CÁ NHÂN</button>
                 <button class="btn btn-outline-secondary form-control" id="btn_show_list_user">DANH SÁCH USER</button>
+                <button class="btn btn-outline-secondary form-control" id="btn_show_list_song">DANH SÁCH BÀI HÁT</button>
             </div>
             <div class="col-9">
                 <div class="info-user">
@@ -277,11 +68,13 @@
                 <div class="list-user">
                     <h3>DANH SÁCH USER</h3>
                     <table style="width:100%">
-                        {{--<tr>--}}
-                            {{--<th>ID</th>--}}
-                            {{--<th>Name</th>--}}
-                            {{--<th>Email</th>--}}
-                        {{--</tr>--}}
+
+                    </table>
+                </div>
+                <div class="list-song">
+                    <h3>DANH SÁCH BÀI HÁT</h3>
+                    <button class="btn btn-outline-secondary" id="btn_add_song">THÊM BÀI HÁT</button>
+                    <table style="width:100%">
 
                     </table>
                 </div>
@@ -289,7 +82,90 @@
             <button class="btn btn-primary form-control" id="btn_logout">LOGOUT</button>
         </div>
     </div>
+        {{--end đã login--}}
 </div>
 
+
+{{--create modal--}}
+<div id="create_song_modal" class="modal fade" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header bg-info">
+                <h4 class="modal-title">CREATE</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form id="create_song" class="form-horizontal" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" value="{{route('songs.store')}}" id="create_song_url"
+                           name="create_song_url"/>
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="name" class="col-lg-3 control-label">NAME <span
+                                        class="text-danger">*</span></label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" name="name" id="name" required="required"
+                                />
+                            </div>
+                        </div>
+                        {{--NAME--}}
+                        <div class="form-group">
+                            <label for="composer" class="col-lg-3 control-label">composer</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" name="composer" id="composer"
+                                />
+                            </div>
+                        </div>
+                        {{--COMPOSER--}}
+                        <div class="form-group">
+                            <label for="singer" class="col-lg-3 control-label">singer</label>
+                            <div class="col-lg-9">
+                                <input type="text" data-field="date" class="form-control" name="singer"
+                                       id="singer"
+                                />
+                            </div>
+                        </div>
+                        {{--SINGER--}}
+                        <div class="form-group">
+                            <label for="thumbnail" class="col-lg-3 control-label">THUMBNAIL</label>
+                            <div class="col-lg-9">
+                                <input type="file" class="form-control" name="thumbnail" id="thumbnail"
+                                       accept="image/*"
+                                />
+                            </div>
+                        </div>
+                        {{--THUMBNAIL--}}
+                        <div class="form-group">
+                            <label for="song_file" class="col-lg-3 control-label">SONG<span
+                                        class="text-danger">*</span></label>
+                            <div class="col-lg-9">
+                                <input type="file" class="form-control" name="song_file" id="song_file"
+                                       accept="audio/*" required="required"
+                                />
+                            </div>
+                        </div>
+                        {{--FILE MP3--}}
+                        <div class="form-group">
+                            <label for="lyric" class="col-lg-3 control-label">lyric</label>
+                            <div class="col-lg-9">
+                                    <textarea class="form-control" name="lyric" id="lyric"
+                                    > </textarea>
+                            </div>
+                        </div>
+                        {{--lyric--}}
+
+                    </div>
+                    <button type="submit" class="btn btn-block btn-success">CREATE</button>
+                </form>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
