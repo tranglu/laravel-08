@@ -14,11 +14,17 @@ class SongController extends Controller
     {
         $this->middleware('auth:sanctum');
     }
-    public function index(): JsonResponse
+
+    public function index(Request $request): JsonResponse
     {
-        $songs = Song::with('user')->get();
-;
-        return response()->json([ 'songs' => SongResource::collection( $songs), 'message' => 'Retrieved successfully'], 200);
+        if (!$request->ajax()) {
+            return $this->errorNotAjax();
+        }
+        $songs = Song::with('user')->get();;
+        return response()->json([
+            'songs' => SongResource::collection($songs),
+            'message' => 'Retrieved successfully',
+            'status_code' => 200], 200);
     }
 
     /**
@@ -34,16 +40,15 @@ class SongController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        if(!$request->ajax()){
+        if (!$request->ajax()) {
             return $this->errorNotAjax();
         } else {
             $data = $request->all();
-
             $validator = Validator::make($data, [
                 'name' => 'required|max:255',
                 'song_file' => 'required',
@@ -53,7 +58,7 @@ class SongController extends Controller
                 'lyric' => 'nullable'
             ]);
             if ($validator->fails()) {
-                return response(['error' => $validator->errors(), 'Validation Error']);
+                return response(['error' => $validator->errors()->all(), 'Validation Error']);
             } else {
                 $song = new Song();
                 $song->name = $request->name;
@@ -68,28 +73,38 @@ class SongController extends Controller
                 } else {
                     $song->thumbnail = 'storage/images/thumbnail/logo_song.png';
                 }
-                $song->user_id=auth()->user()->id;
+                $song->user_id = auth()->user()->id;
                 $song->save();
 //                \Log::info("song= " . print_r($song, true));
-                return response(['song' => new SongResource($song), 'message' => 'Created successfully'], 201);
+                return response([
+                    'song' => new SongResource($song),
+                    'message' => 'Created successfully',
+                    'status_code' => 201], 201);
             }
         }
     }
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+
+    public function show(Request $request, $id): JsonResponse
     {
-        //
+        if (!$request->ajax()) {
+            return $this->errorNotAjax();
+        }
+        $song = Song::find($id);
+        if ($song instanceof Song) {
+            return response()->json([
+                'song' => new SongResource($song),
+                'message' => 'Retrieved successfully',
+                'status_code' => 200], 200);
+        } else {
+            return response(['error' => 'Error'], 1000);
+        }
+
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -100,23 +115,94 @@ class SongController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request): JsonResponse
     {
-        //
+//        $method = $request->method(); kiểm tra method
+//        \Log::info("method= " . print_r( $method, true));
+        if (!$request->ajax()) {
+            return $this->errorNotAjax();
+        }
+        if ($request->isMethod('PATCH')) {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required',
+                'name' => 'present|max:255',
+                'composer' => 'nullable',
+                'singer' => 'nullable',
+                'lyric' => 'nullable'
+
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors(), 'Validation Error'], 1000);
+            } else {
+                $song = Song::find($request->id);
+                if ($song instanceof Song) {
+                    try {
+                        $song->name = $request->name;
+                        $song->singer = $request->singer;
+                        $song->composer = $request->composer;
+                        $song->lyric = $request->lyric;
+                        $song->save();
+//                \Log::info("song_edit= " . print_r($song, true));
+                        return response()->json([
+                            'song' => new SongResource($song),
+                            'message' => 'Update successfully',
+                            'status_code' => 200
+                        ], 200);
+                    } catch (\Exception $e) {
+                        $returnArray['code'] = 5;
+                        $returnArray['messages'] = "Lỗi " . $e->getMessage();
+                        return response()->json([
+                            'error' => $e->getMessage(),
+                            'Error'], 1000);
+                    }
+                } else {
+                    return response()->json(['error' => 'Error'], 1000);
+                }
+            }
+        } else {
+            return response()->json(['error' => 'Error'], 1000);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request): JsonResponse
     {
-        //
+        if (!$request->ajax()) {
+            return $this->errorNotAjax();
+        }
+        if ($request->isMethod('DELETE')) {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors(), 'Validation Error'], 1000);
+            } else {
+                $song = Song::find($request->id);
+                if ($song instanceof Song) {
+                    try {
+                        $song->delete();
+                        return response()->json([
+                            'status_code' => '200',
+                            'message' => 'Deleted']);
+                    } catch (\Exception $e) {
+                        return response()->json([
+                            'error' => $e->getMessage(), 'Error'], 1000);
+                    }
+                } else {
+                    return response()->json(['error' => 'Error'], 1000);
+                }
+            }
+        } else {
+            return response()->json(['error' => 'Error'], 1000);
+        }
     }
 }

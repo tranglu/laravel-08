@@ -11,12 +11,15 @@
     <link href="../../public/assets/bootstrap/css/bootstrap-icons.css" rel="stylesheet" >
     <script src="../../public/assets/jquery/jquery-3.6.0.min.js"></script>
     <script src="../../public/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="../../public/js/sweet_alert.min.js"></script>
     <script>
         let loginURL = `http://laravel-08.test/api/login`;
         let logoutURL = `http://laravel-08.test/api/logout`;
+        let urlCreate= `http://laravel-08.test/api/songs`;
         let currentUserURL = `http://laravel-08.test/api/me`;
-        let allUserURL = `http://laravel-08.test/api/user`;
-        let allSongURL = `http://laravel-08.test/api/me`;
+        let allUserURL = `http://laravel-08.test/api/users`;
+        let allSongURL = `http://laravel-08.test/api/songs`;
+        let showSongURL=`http://laravel-08.test/api/songs`;
 
     </script>
     <script type="text/javascript" src="../../public/js/handlebars-v4.1.2.js"></script>
@@ -122,9 +125,6 @@
             <!-- Modal body -->
             <div class="modal-body">
                 <form id="create_song" class="form-horizontal" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" value="{{route('songs.store')}}" id="create_song_url"
-                           name="create_song_url"/>
                     <div class="row">
                         <div class="form-group">
                             <label for="name" class="col-lg-3 control-label">NAME <span
@@ -192,24 +192,114 @@
     </div>
 </div>
 
-<div id="edit_song_modal" class="modal fade" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog">
+<!--show modal-->
+<div class="modal fade" id="show_song_modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="modal-header bg-info">
-                <h4 class="modal-title">EDIT SONG</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <div class="modal-header border-bottom-0">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <!-- Modal body -->
             <div class="modal-body">
+                    <h4>Song Detail</h4>
+                <div class="">
+                    <p>Name: <span id="song_name"></span></p>
+                    <p> Singer: <span id="song_singer"></span></p>
+                    <p> Composer: <span id="song_composer"></span></p>
+                    <p> Thumbnail: <span id="song_thumbnail"></span></p>
+                    <p> URL: <span id="song_url"></span></p>
+
+                </div>
 
             </div>
-            <!-- Modal footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+    <!--edit modal-->
+    <div id="edit_song_modal" class="modal fade" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header bg-info">
+                    <h4 class="modal-title">EDIT SONG</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form id="edit_song_form" class="form-horizontal" method="POST">
+                        <input type="hidden" name="_method" value="PATCH">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <div class="row">
+                            <input type="hidden" id="song_id_edit" name="song_id_edit">
+                            <div class="form-group">
+                                <label for="song_name_edit" class="col-lg-3 control-label">NAME <span
+                                        class="text-danger">*</span></label>
+                                <div class="col-lg-9">
+                                    <input type="text" class="form-control" name="song_name_edit" id="song_name_edit" required="required"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="song_composer_edit" class="col-lg-3 control-label">composer</label>
+                                <div class="col-lg-9">
+                                    <input type="text" class="form-control" name="song_composer_edit" id="song_composer_edit"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="song_singer_edit" class="col-lg-3 control-label">singer</label>
+                                <div class="col-lg-9">
+                                    <input type="text" data-field="date" class="form-control" name="song_singer_edit"
+                                           id="song_singer_edit"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label  class="col-lg-3 control-label">THUMBNAIL</label>
+                                <div class="col-lg-9">
+                                    <p> Thumbnail: <span id="song_old_thumbnail"></span></p>
+                                    <!--<input type="file" class="form-control" name="song_thumbnail_edit" id="song_thumbnail_edit" accept="image/*"/>-->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label  class="col-lg-3 control-label">SONG<span
+                                        class="text-danger">*</span></label>
+                                <div class="col-lg-9">
+                                    <p> OLD URL: <span id="song_old_url"></span></p>
+                                    <!--<input type="file" class="form-control" name="song_url_edit" id="song_url_edit"-->
+                                           <!--accept="audio/*" />-->
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="song_lyric_edit" class="col-lg-3 control-label">lyric</label>
+                                <div class="col-lg-9">
+                                    <textarea class="form-control" name="song_lyric_edit" id="song_lyric_edit"
+                                    > </textarea>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <button type="submit" class="btn btn-block btn-info">CẬP NHẬT THÔNG TIN</button>
+
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

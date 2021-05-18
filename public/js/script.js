@@ -3,8 +3,10 @@ $(function() {
     // $(".class-inside").hide();
     function getCharacterLength(str) {
         return [...str].length;
-    }
-
+    };
+    function showModal(modal){
+        $('modal').modal('show');
+    };
     function getInfo() {
         let tokenFlag = localStorage.getItem('bearer_token');
         if (tokenFlag != null && getCharacterLength(tokenFlag) > 0) {
@@ -58,7 +60,7 @@ $(function() {
 
         var str= "<tr>" +
             "<td>" +
-            "<button  data-id='"+item.id+"'class='btn btn-outline-info btn-show-song' >XEM</button> " +
+            "<button  data-id='"+item.id+"'class='btn btn-outline-info btn-show-song'>XEM</button> " +
             "<button data-id='"+item.id+"' class='btn btn-outline-success btn_edit_song' data-toggle='modal' data-target='#edit_admin_modal'>SỬA</button> " +
             "<button data-id='"+item.id+"' class='btn btn-outline-danger btn-delete-song'>XÓA</button>"+
             "</td>" +
@@ -71,6 +73,61 @@ $(function() {
         return str;
 
     }
+
+    function loadListSong() {
+        let tokenFlag = localStorage.getItem('bearer_token');
+        if (tokenFlag != null && getCharacterLength(tokenFlag) > 0) {
+            $(".class-outside").hide();
+            $(".info-user").hide();
+            $(".list-user").hide();
+            $.ajax({
+                url: allSongURL,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Authorization': 'Bearer ' + tokenFlag
+                },
+                beforeSend: function () {
+                },
+                type: 'get',
+                dataType: "json",
+                contentType: 'application/json',
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    // console.log('data: ');
+                    // console.log(data.songs);
+                    if (data.songs) {
+                        $("#table-02").empty();
+                        $("#table-02").append("<tr style='background-color: lightblue; margin: 10px 20px'>" +
+                            "<th > Thao Tác</th>" +
+                            "<th> ID</th>" +
+                            "<th>TÊN BÀI HÁT</th>" +
+                            "<th>TÁC GIẢ</th>" +
+                            "<th>CA SĨ</th>" +
+                            // "<th>URL HÌNH ĐẠI DIỆN</th>" +
+                            // "<th>LỜI BÀI HÁT</th>" +
+                            // "<th>URL BÀI HÁT</th>" +
+                            "<th>NGƯỜI TẠO</th>" +
+                            "</tr>");
+
+                        $.each(data.songs, function (id, item) {
+
+                            $("#table-02").append(template_list_song(item))
+                        });
+                        $(".list-song").show();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log('Lỗi: ' + status + " - " + error);
+                },
+                complete: function (xhr, textStatus) {
+                }
+            });
+        } else {
+            $(".class-outside").show();
+            $(".class-inside").hide();
+        }
+    };
     $("#btn_login").on("click", function (e) {
         e.preventDefault();
         let formData = new FormData();
@@ -229,83 +286,215 @@ $(function() {
             $(".class-inside").hide();
         }
     });
-    // $("#btn_show_list_song").on("click", function (e) {
-    //     e.preventDefault();
-    //     let tokenFlag = localStorage.getItem('bearer_token');
-    //     if (tokenFlag != null && getCharacterLength(tokenFlag) > 0) {
-    //         $(".class-outside").hide();
-    //         $(".info-user").hide();
-    //         $(".list-user").hide();
-    //         $.ajax({
-    //             url: allSongURL,
-    //             headers: {
-    //                 'X-Requested-With': 'XMLHttpRequest',
-    //                 'Authorization': 'Bearer ' + tokenFlag
-    //             },
-    //             beforeSend: function () {
-    //             },
-    //             type: 'get',
-    //             dataType: "json",
-    //             contentType: 'application/json',
-    //             cache: false,
-    //             processData: false,
-    //             success: function (data) {
-    //                 // console.log('data: ');
-    //                 // console.log(data.songs);
-    //                 if (data.songs) {
-    //                     $("#table-02").empty();
-    //                     $("#table-02").append("<tr style='background-color: lightblue; margin: 10px 20px'>" +
-    //                         "<th > Thao Tác</th>" +
-    //                         "<th> ID</th>" +
-    //                         "<th>TÊN BÀI HÁT</th>" +
-    //                         "<th>TÁC GIẢ</th>" +
-    //                         "<th>CA SĨ</th>" +
-    //                         // "<th>URL HÌNH ĐẠI DIỆN</th>" +
-    //                         // "<th>LỜI BÀI HÁT</th>" +
-    //                         // "<th>URL BÀI HÁT</th>" +
-    //                         "<th>NGƯỜI TẠO</th>" +
-    //                         "</tr>");
-    //
-    //                     $.each(data.songs, function (id, item) {
-    //
-    //                         $("#table-02").append(template_list_song(item))
-    //                     });
-    //
-    //
-    //                     $(".list-song").show();
-    //                 }
-    //             },
-    //             error: function (xhr, status, error) {
-    //                 console.log('Lỗi: ' + status + " - " + error);
-    //             },
-    //             complete: function (xhr, textStatus) {
-    //             }
-    //         });
-    //     }else{
-    //         $(".class-outside").show();
-    //         $(".class-inside").hide();
-    //     }
-    // });
+    $("#btn_show_list_song").on("click", function (e) {
+        e.preventDefault();
+        loadListSong();
+
+    });
     $(".btn_add_song").on("click", function (e) {
             $("#create_song_modal").modal('show');// gọi tới modal create mở ra
     });
 
+    let songIDEdit = $('#song_id_edit');
+    let songNameEdit = $('#song_name_edit');
+    let songSingerEdit = $('#song_singer_edit');
+    let songComposerEdit = $('#song_composer_edit');
+    let songLyricEdit = $('#song_lyric_edit');
+    // let songThumbnailEdit = $('#song_thumbnail_edit');
+    // let songUrlEdit = $('#song_url_edit');
     $("#table-02").on('click','.btn_edit_song', function (e) {
         $("#edit_song_modal").modal('show');
-        let myDataId = $(e.relatedTarget).data('id');
-        console.log(myDataId);
-    });
-    $("#edit_song_modal").on('show.bs.modal', function (e) {
-        let myDataId = $(e.relatedTarget).data('id');
-        console.log(myDataId);
-    });
-    $(".delete-song").on('click', function (e) {
-        $("#create_song_modal").modal('show');
-        // e.preventDefault();
-        // let myDataId = $(e.relatedTarget).data('id');
-        // console.log(myDataId);
+        let myDataId = $(this).data('id');
+        console.log("vao day");
+        let tokenFlag = localStorage.getItem('bearer_token');
+        if (tokenFlag != null && getCharacterLength(tokenFlag) > 0) {
+            $.ajax({
+                url: `http://laravel-08.test/api/songs/${myDataId}`,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Authorization': 'Bearer ' + tokenFlag
+                },
+                type: 'get',
+                dataType: "json",
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (song) {
+                    console.log(song);
+                    songIDEdit.val(song.song.id);
+                    songNameEdit.val(song.song.name);
+                    songSingerEdit.val(song.song.singer);
+                    songComposerEdit.val(song.song.composer);
+                    songLyricEdit.val(song.song.lyric);
+                    $("#song_old_thumbnail").html(song.song.thumbnail);
+                    $("#song_old_url").html(song.song.url);
+                },
+                error: function (jqxhr, status, exception) {
+                    console.log('Exception: ' + exception);
+                },
+                complete: function (xhr, textStatus) {
+                }
+            });
+        }
 
     });
+    let updateForm = $('#edit_song_form');
+    updateForm.submit(function (event) {
+        event.preventDefault();
+        let gender = 0;
+
+        let id = songIDEdit.val();
+        let name = songNameEdit.val();
+        let singer = songSingerEdit.val();
+        let composer = songComposerEdit.val();
+        let lyric = songLyricEdit.val();
+        // let PATCH=
+        // let thumbnail = songThumbnailEdit.val();
+        // let url = songUrlEdit.val();
+        let formData = new FormData();
+        formData.append('id', id);
+        formData.append('name', name);
+        formData.append('singer', singer);
+        formData.append('composer', composer);
+        formData.append('lyric', lyric);
+        formData.append('_method', "PATCH");
+        let tokenFlag = localStorage.getItem('bearer_token');
+        if (tokenFlag != null && getCharacterLength(tokenFlag) > 0) {
+            jQuery.ajax({
+                url: `http://laravel-08.test/api/songs/${id}`,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Authorization': 'Bearer ' + tokenFlag
+                },
+                data: formData,
+                type: 'post',
+                dataType: "json",
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    console.log(data);
+                    if (data.status_code === 200) {
+                        console.log("thanh cong");
+                        loadListSong();
+
+                    } else {
+                        console.log("that bai");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log('Lỗi: ' + status + " - " + error);
+
+                },
+                complete: function (xhr, textStatus) {
+                    $("#edit_song_modal").modal("hide");
+                    updateForm.trigger('reset');
+
+                }
+            });
+        }
+    })
+    $("#table-02").on('click','.btn-show-song', function (e) {
+        $("#show_song_modal").modal('show');
+        let myDataId = $(this).data('id');
+        let ten_bai_hat =$('#ten_bai_hat');
+        console.log("vao day");
+        let tokenFlag = localStorage.getItem('bearer_token');
+        if (tokenFlag != null && getCharacterLength(tokenFlag) > 0) {
+            $.ajax({
+                url: `http://laravel-08.test/api/songs/${myDataId}`,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Authorization': 'Bearer ' + tokenFlag
+                },
+                type: 'get',
+                dataType: "json",
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (song) {
+                    console.log(song);
+                    $("#song_name").html(song.song.name);
+                    $("#song_singer").html(song.song.singer);
+                    $("#song_composer").html(song.song.composer);
+                    $("#song_thumbnail").html(song.song.thumbnail);
+                    $("#song_url").html(song.song.url);
+
+                },
+                error: function (jqxhr, status, exception) {
+                    console.log('Exception: ' + exception);
+
+                },
+                complete: function (xhr, textStatus) {
+
+                }
+            });
+        }
+    });
+    $("#table-02").on('click','.btn-delete-song', function (e) {
+        event.preventDefault();
+        let id = $(this).data('id');
+        // console.log(id);
+        swal({
+            title: "Bạn chắc chứ?",
+            text: "Dữ liệu bị xóa sẽ không thể phục hồi!\n"
+            ,
+            type: "warning",
+            showCancelButton: true,
+            showLoaderOnConfirm: true,
+            confirmButtonColor: "#EF5350",
+            confirmButtonText: "Vâng, xóa nhé!",
+            cancelButtonText: "Không, để xem lại!",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        }, function (isConfirm) {
+            //console.log("chay toi day roi 2");
+            if (isConfirm) {
+
+                let formData = new FormData();
+                formData.append('id', id);
+                formData.append('_method', "DELETE");
+                let tokenFlag = localStorage.getItem('bearer_token');
+                $.ajaxSetup({
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Authorization': 'Bearer ' + tokenFlag
+                    }
+                });
+                $.ajax({
+                    url: `http://laravel-08.test/api/songs/${id}`,
+                    data: formData,
+                    beforeSend: function () {
+                    },
+                    type: 'POST',
+                    dataType: "json",
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.status=== 200) {
+                            console.log("thanh cong");
+                            loadListSong();
+
+                        } else {
+                            console.log("that bai");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+
+                    }
+                });
+            } else {
+                swal({
+                    title: "Hủy xóa",
+                    text: "Kiểm tra lại thông tin trước khi xóa.",
+                    confirmButtonColor: "#2196F3",
+                    type: "info"
+                });
+            }
+        });
+    });
+
     /* ajax tAO MOI */
     let createModal = $('#create_song_modal');
     let formCreate = $('#create_song');
@@ -343,8 +532,10 @@ $(function() {
                 cache: false,
                 processData: false,
                 success: function (data) {
-                    if (data.status === 201) {
+                    if (data.status_code === 201) {
                         console.log("đã add được bài hát");
+                    }else{
+                        console.log("that bai");
                     }
                 },
                 error: function (xhr, status, error) {
@@ -359,10 +550,4 @@ $(function() {
             });
         }
     });
-});
-$(function() {
-    // $(".btn_edit_song").on("click", function (e) {
-    //     console.log('clik');
-    //     $("#create_song_modal").modal('show');// gọi tới modal create mở ra
-    // });
 });

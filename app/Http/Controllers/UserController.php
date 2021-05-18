@@ -13,28 +13,39 @@ class UserController extends Controller
     {
         $this->middleware('auth:sanctum');
     }
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
+        if(!$request->ajax()){
+            return $this->errorNotAjax();
+        }
         return response()->json([
+            'status_code' => 200,
             'data' => User::all(),
         ]);
     }
 
-    public function getCurrentUser(): JsonResponse
+    public function getCurrentUser(Request $request): JsonResponse
     {
+        if(!$request->ajax()){
+            return $this->errorNotAjax();
+        }
         $user=auth()->user();
-//        $x=new UserResource(User::find($user->id));
-//        \Log::info("user data= " . print_r($x, true));
-//        return response()->json([
-//            'data' => $user,
-//        ]);
-
-        return response()->json(['data' => new UserResource($user), 'message' => 'Retrieved successfully'], 200);
+        return response()->json([
+            'data' => new UserResource($user),
+            'message' => 'Retrieved successfully',
+            'status_code' => 200,
+        ], 200);
     }
-    public function logout(): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
+        if(!$request->ajax()){
+            return $this->errorNotAjax();
+        }
         auth()->user()->tokens()->delete();
 
-        return response()->json(['message' => 'Tokens Revoked']);
+        return response()->json([
+            'message' => 'Tokens Revoked',
+            'status_code' => 200,
+            ]);
     }
 }
