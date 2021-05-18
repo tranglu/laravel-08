@@ -58,7 +58,8 @@ class SongController extends Controller
                 'lyric' => 'nullable'
             ]);
             if ($validator->fails()) {
-                return response(['error' => $validator->errors()->all(), 'Validation Error']);
+                return response(['error' => $validator->errors()->all(), 'Validation Error',
+                                'message' => 'Validation Error']);
             } else {
                 $song = new Song();
                 $song->name = $request->name;
@@ -76,7 +77,7 @@ class SongController extends Controller
                 $song->user_id = auth()->user()->id;
                 $song->save();
 //                \Log::info("song= " . print_r($song, true));
-                return response([
+                return response()->json([
                     'song' => new SongResource($song),
                     'message' => 'Created successfully',
                     'status_code' => 201], 201);

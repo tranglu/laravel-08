@@ -21,8 +21,8 @@ use App\Http\Controllers\SongController;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-//Route::post('/auth/register', [AuthController::class,'register'])->name('api-auth-register');
-//Route::post('/auth/login', [AuthController::class,'login'])->name('api-auth-login');
+Route::post('/auth/register', [AuthController::class,'register'])->name('api-auth-register');
+Route::post('/auth/login', [AuthController::class,'login'])->name('api-auth-login');
 Route::get('/auth/check', [AuthController::class,'check'])->name('api-auth-check');
 Route::get('/deny', [AuthController::class,'deny'])->name('api-auth-deny');
 
@@ -32,20 +32,20 @@ Route::get('/deny', [AuthController::class,'deny'])->name('api-auth-deny');
 //    ->middleware(['guest:'.config('fortify.guard')])
 //    ->name('login');// trả về giao diện login
 
-$limiter = config('fortify.limiters.login');
-$twoFactorLimiter = config('fortify.limiters.two-factor');
-Route::post('/login', [AuthController::class, 'login'])
-    ->middleware(array_filter([
-        'guest:'.config('fortify.guard'),
-        $limiter ? 'throttle:'.$limiter : null,
-    ]))->name('api-login');// login vào app
+//$limiter = config('fortify.limiters.login');
+//$twoFactorLimiter = config('fortify.limiters.two-factor');
+//Route::post('/login', [AuthController::class, 'login'])
+//    ->middleware(array_filter([
+//        'guest:'.config('fortify.guard'),
+//        $limiter ? 'throttle:'.$limiter : null,
+//    ]))->name('api-login');// login vào app
 
 //Route::get('/register', [RegisteredUserController::class, 'create'])
 //    ->middleware(['guest:'.config('fortify.guard')])
 //    ->name('register');
-Route::post('/register', [RegisteredUserController::class, 'store'])
-            ->middleware(['guest:'.config('fortify.guard')])
-            ->name('api-fortify-register');// dùng cho đăng ký của fortify
+//Route::post('/register', [RegisteredUserController::class, 'store'])
+//            ->middleware(['guest:'.config('fortify.guard')])
+//            ->name('api-fortify-register');// dùng cho đăng ký của fortify
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [UserController::class, 'logout'])
