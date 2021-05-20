@@ -27,27 +27,18 @@ Route::get('/auth/check', [AuthController::class,'check'])->name('api-auth-check
 Route::get('/deny', [AuthController::class,'deny'])->name('api-auth-deny');
 
 
-
-//Route::get('/login', [AuthenticatedSessionController::class, 'create'])
-//    ->middleware(['guest:'.config('fortify.guard')])
-//    ->name('login');// trả về giao diện login
-
 //$limiter = config('fortify.limiters.login');
-//$twoFactorLimiter = config('fortify.limiters.two-factor');
-//Route::post('/login', [AuthController::class, 'login'])
+//
+//
+//Route::post('/login', [AuthenticatedSessionController::class, 'store'])
 //    ->middleware(array_filter([
 //        'guest:'.config('fortify.guard'),
 //        $limiter ? 'throttle:'.$limiter : null,
-//    ]))->name('api-login');// login vào app
-
-//Route::get('/register', [RegisteredUserController::class, 'create'])
-//    ->middleware(['guest:'.config('fortify.guard')])
-//    ->name('register');
-//Route::post('/register', [RegisteredUserController::class, 'store'])
-//            ->middleware(['guest:'.config('fortify.guard')])
-//            ->name('api-fortify-register');// dùng cho đăng ký của fortify
-
+//    ]));
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/home', function () {
+        return view('welcome');
+    });
     Route::post('/logout', [UserController::class, 'logout'])
         ->name('api-auth-logout');
     Route::get('/users', [UserController::class,'index'])->name('api-get-all-user');

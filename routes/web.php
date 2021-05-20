@@ -12,7 +12,20 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+$limiter = config('fortify.limiters.login');
 
+
+Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+    ->middleware(array_filter([
+        'guest:'.config('fortify.guard'),
+        $limiter ? 'throttle:'.$limiter : null,
+    ]));
 Route::get('/', function () {
     return view('welcome');
+});
+Route::get('/home', function () {
+    return view('welcome');
+});
+Route::get('/test', function () {
+    return view('test');
 });

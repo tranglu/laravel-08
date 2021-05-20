@@ -6,16 +6,17 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Hello World</title>
-    <link href="../../public/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../../public/assets/bootstrap/css/bootstrap-icons.css" rel="stylesheet">
-    <script src="../../public/assets/jquery/jquery-3.6.0.min.js"></script>
-    <script src="../../public/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="../js/sweet_alert.min.js"></script>
-    <script type="text/javascript" src="../js/pnotify.min.js"></script>
+    <link href="{{ asset('assets/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/bootstrap/css/bootstrap-icons.css') }}" rel="stylesheet" >
+    <script src="{{ asset('assets/jquery/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('assets/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/sweet_alert.min.js') }}"></script>
+    <script src="{{ asset('js/pnotify.min.js') }}"></script>
+
     <script>
         let registerURL = `http://laravel-08.test/api/auth/register`;
-        let loginURL = `http://laravel-08.test/api/auth/login`;
-        // let loginURL = `http://laravel-08.test/api/login`;
+        // let loginURL = `http://laravel-08.test/api/auth/login`;
+        let loginURL = `http://laravel-08.test/login`;
         let logoutURL = `http://laravel-08.test/api/logout`;
         let urlCreate = `http://laravel-08.test/api/songs`;
         let currentUserURL = `http://laravel-08.test/api/me`;
@@ -24,7 +25,7 @@
         let showSongURL = `http://laravel-08.test/api/songs`;
 
     </script>
-    <script src="../js/script.js"></script>
+    <script src="{{ asset('js/script.js') }}"></script>
     <style>
         table, th, td {
             border: 1px solid black;
@@ -43,59 +44,59 @@
     <!--chưa login-->
     <div class="class-outside">
         <div class="row">
-        <div class="dang-nhap col-5 offset-5 text-center my-5 border border-2">
-            <form  id="form_login" method="post">
-                <h2 class="card-title my-5">ĐĂNG NHẬP</h2>
-                <div class="row m-3">
-                    <span class="col-4"><label for="email_login">Email</label></span>
-                    <span class="col-6"><input placeholder="Email" class="form-control" type="text" name="email_login"
-                                               id="email_login"></span>
-                </div>
-                <div class="row m-3">
-                    <span class="col-4"><label for="password_login">Mật khẩu</label></span>
-                    <span class="col-6"><input placeholder="Mật khẩu" class="form-control" type="text"
-                                               name="password_login" id="password_login"></span>
-                </div>
-                <div class="row m-3">
+            <div class="dang-nhap col-5 offset-5 text-center my-5 border border-2">
+                <form  id="form_login" method="post">
+                    <h2 class="card-title my-5">ĐĂNG NHẬP</h2>
+                    <div class="row m-3">
+                        <span class="col-4"><label for="email_login">Email</label></span>
+                        <span class="col-6"><input placeholder="Email" class="form-control" type="text" name="email_login"
+                                                   id="email_login"></span>
+                    </div>
+                    <div class="row m-3">
+                        <span class="col-4"><label for="password_login">Mật khẩu</label></span>
+                        <span class="col-6"><input placeholder="Mật khẩu" class="form-control" type="text"
+                                                   name="password_login" id="password_login"></span>
+                    </div>
+                    <div class="row m-3">
                     <span class="col-6 offset-4">
                         <button class="btn btn-primary form-control" id="btn_login">LOGIN</button>
                     </span>
-                </div>
-                <span>Bạn chưa có tài khoản?</span>
-                <div class="row m-3">
+                    </div>
+                    <span>Bạn chưa có tài khoản?</span>
+                    <div class="row m-3">
                     <span class="col-6 offset-4">
                         <button class="btn btn-primary form-control" id="register">ĐĂNG KÝ</button>
                     </span>
-                </div>
-            </form>
-        </div>
-        <div class="dang-ky col-5 offset-3 text-center my-5 border border-2">
-            <form class="text-center my-5" id="form_register" method="POST">
-                <h2 class="card-title">ĐĂNG KÝ TÀI KHOẢN</h2>
-                <div class="row form-group m-3">
-                    <label class="col-4" for="name">Tên</label>
-                    <input class="col-6" type="text" name="name" id="name">
-                </div>
-                <div class="row form-group m-3">
-                    <label class="col-4" for="email">Email</label>
-                    <input class="col-6" type="text" name="email" id="email">
-                </div>
-                <div class="row form-group m-3">
-                    <label class="col-4" for="password">Mật khẩu</label>
-                    <input class="col-6" type="password" name="password" id="password">
-                </div>
-                <div class="row form-group m-3">
-                    <label class="col-4" for="password_confirmation">Nhập Lại Mật khẩu</label>
-                    <input class="col-6" type="password" name="password_confirmation" id="password_confirmation">
-                </div>
-                <div class="row form-group m-3">
+                    </div>
+                </form>
+            </div>
+            <div class="dang-ky col-5 offset-3 text-center my-5 border border-2">
+                <form class="text-center my-5" id="form_register" method="POST">
+                    <h2 class="card-title">ĐĂNG KÝ TÀI KHOẢN</h2>
+                    <div class="row form-group m-3">
+                        <label class="col-4" for="name">Tên</label>
+                        <input class="col-6" type="text" name="name" id="name">
+                    </div>
+                    <div class="row form-group m-3">
+                        <label class="col-4" for="email">Email</label>
+                        <input class="col-6" type="text" name="email" id="email">
+                    </div>
+                    <div class="row form-group m-3">
+                        <label class="col-4" for="password">Mật khẩu</label>
+                        <input class="col-6" type="password" name="password" id="password">
+                    </div>
+                    <div class="row form-group m-3">
+                        <label class="col-4" for="password_confirmation">Nhập Lại Mật khẩu</label>
+                        <input class="col-6" type="password" name="password_confirmation" id="password_confirmation">
+                    </div>
+                    <div class="row form-group m-3">
                     <span class="col-6 offset-4">
                         <button class="btn btn-primary btn-sm" id="login">LOGIN</button>
                         <button class="btn btn-primary btn-sm" id="btn_create_user">ĐĂNG KÝ TÀI KHOẢN</button>
                     </span>
-                </div>
-            </form>
-        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     <!--end chưa login-->
@@ -160,7 +161,7 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="name" class="col-lg-3 control-label">NAME <span
-                                    class="text-danger">*</span></label>
+                                        class="text-danger">*</span></label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="name" id="name_song" required="required"
                                 />
@@ -195,7 +196,7 @@
 
                         <div class="form-group">
                             <label for="song_file" class="col-lg-3 control-label">SONG<span
-                                    class="text-danger">*</span></label>
+                                        class="text-danger">*</span></label>
                             <div class="col-lg-9">
                                 <input type="file" class="form-control" name="song_file" id="song_file"
                                        accept="audio/*" required="required"
@@ -269,7 +270,7 @@
                         <input type="hidden" id="song_id_edit" name="song_id_edit">
                         <div class="form-group">
                             <label for="song_name_edit" class="col-lg-3 control-label">NAME <span
-                                    class="text-danger">*</span></label>
+                                        class="text-danger">*</span></label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="song_name_edit" id="song_name_edit"
                                        required="required"
@@ -305,7 +306,7 @@
 
                         <div class="form-group">
                             <label class="col-lg-3 control-label">SONG<span
-                                    class="text-danger">*</span></label>
+                                        class="text-danger">*</span></label>
                             <div class="col-lg-9">
                                 <p> OLD URL: <span id="song_old_url"></span></p>
                                 <!--<input type="file" class="form-control" name="song_url_edit" id="song_url_edit"-->
